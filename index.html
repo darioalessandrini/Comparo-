@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrixMalin - Trouve ton produit au meilleur prix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .tagline {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #5568d3;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .result-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .store-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .price {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .store-info {
+            display: flex;
+            gap: 20px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            font-size: 0.9em;
+            margin-right: 8px;
+        }
+
+        .badge.best-price {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge.closest {
+            background: #2196f3;
+            color: white;
+        }
+
+        .navigate-btn {
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .navigate-btn:hover {
+            background: #5568d3;
+        }
+
+        .store-nav {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .store-nav.active {
+            display: block;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .store-map {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #f8f8f8;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+
+        .map-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .aisle {
+            position: absolute;
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1976d2;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .aisle.target {
+            background: linear-gradient(180deg, #c8e6c9 0%, #81c784 100%);
+            border-color: #4caf50;
+            color: #2e7d32;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .you-are-here {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #f44336;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #f44336;
+            animation: beacon 1.5s infinite;
+        }
+
+        @keyframes beacon {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(244, 67, 54, 0); }
+        }
+
+        .path {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.3);
+            border: 2px dashed #667eea;
+        }
+
+        .directions {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 12px;
+        }
+
+        .direction-step {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .distance-info {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 PrixMalin</h1>
+            <p class="tagline">Trouve le meilleur prix, le magasin le plus proche, en un instant !</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Cherche un produit (ex: lait, pain, pommes...)">
+                <button class="search-btn" onclick="searchProduct()">Chercher</button>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="price" onclick="setFilter('price')">💰 Moins cher</button>
+                <button class="filter-btn" data-filter="distance" onclick="setFilter('distance')">📍 Plus proche</button>
+                <button class="filter-btn" data-filter="all" onclick="setFilter('all')">🔍 Tout voir</button>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div id="resultsContainer"></div>
+        </div>
+
+        <div class="store-nav" id="storeNav">
+            <div class="nav-header">
+                <h2 id="navStoreName">Navigation en magasin</h2>
+                <button class="back-btn" onclick="backToResults()">← Retour</button>
+            </div>
+            
+            <div class="store-map">
+                <div class="map-3d" id="storeMap">
+                    <!-- Map will be generated here -->
+                </div>
+            </div>
+            
+            <div class="directions">
+                <h3>📍 Directions</h3>
+                <div id="directionsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de données simulée
+        const stores = [
+            {
+                name: 'Colruyt Charleroi Centre',
+                distance: 0.8,
+                address: 'Boulevard Joseph II, 6000 Charleroi',
+                layout: 'standard'
+            },
+            {
+                name: 'Delhaize Charleroi',
+                distance: 1.2,
+                address: 'Rue de la Montagne, 6000 Charleroi',
+                layout: 'premium'
+            },
+            {
+                name: 'Carrefour Express',
+                distance: 0.5,
+                address: 'Place Charles II, 6000 Charleroi',
+                layout: 'compact'
+            },
+            {
+                name: 'Lidl Charleroi Sud',
+                distance: 2.1,
+                address: 'Chaussée de Bruxelles, 6042 Charleroi',
+                layout: 'discount'
+            },
+            {
+                name: 'Aldi Gosselies',
+                distance: 3.5,
+                address: 'Rue de l\'Industrie, 6041 Gosselies',
+                layout: 'discount'
+            }
+        ];
+
+        const products = {
+            'lait': {
+                name: 'Lait demi-écrémé 1L',
+                prices: [
+                    { store: 0, price: 0.89, brand: 'Everyday (Colruyt)' },
+                    { store: 1, price: 1.15, brand: '365 (Delhaize)' },
+                    { store: 2, price: 1.29, brand: 'Carrefour' },
+                    { store: 3, price: 0.79, brand: 'Milbona (Lidl)' },
+                    { store: 4, price: 0.75, brand: 'Milfina (Aldi)' }
+                ],
+                aisle: 'Rayon 3 - Produits laitiers'
+            },
+            'pain': {
+                name: 'Pain blanc 400g',
+                prices: [
+                    { store: 0, price: 0.95, brand: 'Everyday' },
+                    { store: 1, price: 1.25, brand: '365' },
+                    { store: 2, price: 1.10, brand: 'Carrefour' },
+                    { store: 3, price: 0.69, brand: 'Lidl' },
+                    { store: 4, price: 0.65, brand: 'Aldi' }
+                ],
+                aisle: 'Rayon 1 - Boulangerie'
+            },
+            'pommes': {
+                name: 'Pommes Golden 1kg',
+                prices: [
+                    { store: 0, price: 1.99, brand: 'Belgique' },
+                    { store: 1, price: 2.45, brand: 'Bio Delhaize' },
+                    { store: 2, price: 2.15, brand: 'Carrefour' },
+                    { store: 3, price: 1.79, brand: 'Lidl' },
+                    { store: 4, price: 1.69, brand: 'Aldi' }
+                ],
+                aisle: 'Rayon 7 - Fruits & Légumes'
+            },
+            'pâtes': {
+                name: 'Pâtes spaghetti 500g',
+                prices: [
+                    { store: 0, price: 0.69, brand: 'Everyday' },
+                    { store: 1, price: 0.95, brand: '365' },
+                    { store: 2, price: 0.85, brand: 'Carrefour' },
+                    { store: 3, price: 0.59, brand: 'Combino (Lidl)' },
+                    { store: 4, price: 0.55, brand: 'Cucina (Aldi)' }
+                ],
+                aisle: 'Rayon 5 - Épicerie'
+            },
+            'yaourt': {
+                name: 'Yaourt nature 4x125g',
+                prices: [
+                    { store: 0, price: 1.19, brand: 'Everyday' },
+                    { store: 1, price: 1.65, brand: 'Delhaize' },
+                    { store: 2, price: 1.45, brand: 'Carrefour' },
+                    { store: 3, price: 0.99, brand: 'Milbona' },
+                    { store: 4, price: 0.95, brand: 'Milfina' }
+                ],
+                aisle: 'Rayon 3 - Produits laitiers'
+            }
+        };
+
+        let currentFilter = 'price';
+        let currentProduct = null;
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (currentProduct) {
+                displayResults(currentProduct);
+            }
+        }
+
+        function searchProduct() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            // Recherche flexible
+            let foundProduct = null;
+            for (let key in products) {
+                if (query.includes(key) || key.includes(query)) {
+                    foundProduct = key;
+                    break;
+                }
+            }
+            
+            if (foundProduct) {
+                currentProduct = foundProduct;
+                displayResults(foundProduct);
+            } else {
+                // Si pas trouvé, montrer un exemple avec le lait
+                currentProduct = 'lait';
+                displayResults('lait');
+            }
+        }
+
+        function displayResults(productKey) {
+            const product = products[productKey];
+            let results = product.prices.map((p, idx) => ({
+                ...p,
+                store: stores[p.store],
+                distance: stores[p.store].distance
+            }));
+
+            // Tri selon le filtre
+            if (currentFilter === 'price') {
+                results.sort((a, b) => a.price - b.price);
+            } else if (currentFilter === 'distance') {
+                results.sort((a, b) => a.distance - b.distance);
+            }
+
+            const minPrice = Math.min(...results.map(r => r.price));
+            const minDistance = Math.min(...results.map(r => r.distance));
+
+            let html = '';
+            results.forEach((result, idx) => {
+                const isBestPrice = result.price === minPrice;
+                const isClosest = result.distance === minDistance;
+                
+                html += `
+                    <div class="result-card" onclick="navigateToStore(${stores.indexOf(result.store)}, '${productKey}')">
+                        <div class="store-header">
+                            <div class="store-name">${result.store.name}</div>
+                            <div class="price">${result.price.toFixed(2)}€</div>
+                        </div>
+                        <div>
+                            ${isBestPrice ? '<span class="badge best-price">💰 Meilleur prix</span>' : ''}
+                            ${isClosest ? '<span class="badge closest">📍 Le plus proche</span>' : ''}
+                            <span class="badge">${result.brand}</span>
+                        </div>
+                        <div class="store-info">
+                            <div class="info-item">📍 ${result.distance} km</div>
+                            <div class="info-item">📦 ${product.aisle}</div>
+                        </div>
+                        <button class="navigate-btn">🧭 Naviguer dans le magasin</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('resultsContainer').innerHTML = html;
+            document.getElementById('resultsSection').classList.add('active');
+        }
+
+        function navigateToStore(storeIdx, productKey) {
+            const store = stores[storeIdx];
+            const product = products[productKey];
+            
+            document.getElementById('navStoreName').textContent = `📍 ${store.name}`;
+            document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('storeNav').classList.add('active');
+            
+            generateStoreMap(product.aisle);
+            generateDirections(product.aisle, store.name);
+        }
+
+        function generateStoreMap(targetAisle) {
+            const map = document.getElementById('storeMap');
+            map.innerHTML = '';
+
+            // Créer les rayons
+            const aisles = [
+                { id: 1, name: 'Boulangerie', x: 50, y: 50, width: 200, height: 80 },
+                { id: 2, name: 'Surgelés', x: 280, y: 50, width: 200, height: 80 },
+                { id: 3, name: 'Produits laitiers', x: 510, y: 50, width: 200, height: 80 },
+                { id: 4, name: 'Viandes', x: 50, y: 160, width: 200, height: 80 },
+                { id: 5, name: 'Épicerie', x: 280, y: 160, width: 200, height: 80 },
+                { id: 6, name: 'Boissons', x: 510, y: 160, width: 200, height: 80 },
+                { id: 7, name: 'Fruits & Légumes', x: 50, y: 270, width: 200, height: 80 },
+                { id: 8, name: 'Hygiène', x: 280, y: 270, width: 200, height: 80 },
+                { id: 9, name: 'Caisses', x: 510, y: 270, width: 200, height: 80 }
+            ];
+
+            aisles.forEach(aisle => {
+                const div = document.createElement('div');
+                div.className = 'aisle';
+                if (targetAisle.includes(`Rayon ${aisle.id}`) || targetAisle.includes(aisle.name)) {
+                    div.classList.add('target');
+                }
+                div.style.left = aisle.x + 'px';
+                div.style.top = aisle.y + 'px';
+                div.style.width = aisle.width + 'px';
+                div.style.height = aisle.height + 'px';
+                div.innerHTML = `<div style="text-align: center;">${aisle.name}<br><small>Rayon ${aisle.id}</small></div>`;
+                map.appendChild(div);
+            });
+
+            // Position "Vous êtes ici" (entrée)
+            const youAreHere = document.createElement('div');
+            youAreHere.className = 'you-are-here';
+            youAreHere.style.left = '30px';
+            youAreHere.style.top = '400px';
+            youAreHere.title = 'Vous êtes ici';
+            map.appendChild(youAreHere);
+
+            // Tracer un chemin simple
+            const path = document.createElement('div');
+            path.className = 'path';
+            path.style.left = '45px';
+            path.style.top = '380px';
+            path.style.width = '4px';
+            path.style.height = '280px';
+            map.appendChild(path);
+        }
+
+        function generateDirections(aisle, storeName) {
+            const directions = document.getElementById('directionsContainer');
+            const aisleNum = aisle.match(/Rayon (\d+)/)?.[1] || '3';
+            
+            directions.innerHTML = `
+                <div class="direction-step">
+                    <strong>1.</strong> Entre dans ${storeName}
+                    <div class="distance-info">Entrée principale</div>
+                </div>
+                <div class="direction-step">
+                    <strong>2.</strong> Avance tout droit sur 15 mètres
+                    <div class="distance-info">Passe devant l'accueil</div>
+                </div>
+                <div class="direction-step">
+                    <strong>3.</strong> ${aisle} - Sur ta gauche
+                    <div class="distance-info">🎯 Ton produit est ici !</div>
+                </div>
+                <div class="direction-step">
+                    <strong>4.</strong> Direction caisses pour payer
+                    <div class="distance-info">Rayon 9 - Au fond à droite</div>
+                </div>
+            `;
+        }
+
+        function backToResults() {
+            document.getElementById('storeNav').classList.remove('active');
+            document.getElementById('resultsSection').classList.add('active');
+        }
+
+        // Recherche automatique au chargement avec "lait" comme exemple
+        window.addEventListener('load', () => {
+            document.getElementById('searchInput').value = 'lait';
+            searchProduct();
+        });
+
+        // Recherche avec Enter
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchProduct();
+            }
+        });
+    </script>
+</body>
+</html>
